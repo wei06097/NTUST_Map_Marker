@@ -51,16 +51,22 @@ body {
 .map {
   width: 1300px; height: 600px;
 }
+.geo_icon {
+  width: 26px; height: 26px; z-index: 2;
+  position: absolute; color: red;
+}
+.pool_ball {
+  width: 20px; height: 20px; 
+  background-color: black; color: white;
+  border-radius: 50%; text-align: center;
+}
+
 .map_container {
   position: relative; user-select: none;
 }
 .ntust_map {
   max-width: 1300px; height: auto;
   position: absolute; top: 0; left: 0;
-}
-.geo_icon {
-  width: 26px; height: 26px; z-index: 2;
-  position: absolute; color: red;
 }
 
 /* ======================================== */

@@ -8,10 +8,13 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 
 /* ======================================== */
 mapboxgl.accessToken = "pk.eyJ1IjoicGVuaXNhbjM4NSIsImEiOiJjbGtxaDd6a3MxM2FqM2Rwcm5pNGNjaXowIn0.1QaQ6qLmk3RUtaV5ljzE5w"
-const startCenter = [121.54052153484844, 25.01378719649183]
+const startCenter = [121.54098893948492, 25.013384895146856]
 
-export default function MapBox({ setGeoCoord }) {
+export default function MapBox({ setGeoCoord, nodes }) {
+    const [map, setMap] = useState(null)
     const [mark, setMark] = useState(null)
+    const [points, setPoints] = useState([])
+
     useEffect(() => {
         const map = new mapboxgl
             .Map({
@@ -30,16 +33,34 @@ export default function MapBox({ setGeoCoord }) {
                     return new mapboxgl.Marker().setLngLat(location).addTo(map)
                 })
                 setGeoCoord(location)
-                // console.log(location)
             })
-        map.flyTo({ center: startCenter, zoom: (map.getZoom() <= 10)? 14: map.getZoom() })
+        map
+            .setBearing(137)
+            .flyTo({ center: startCenter, zoom: (map.getZoom() <= 10)? 14: map.getZoom() })
+        setMap(map)
         return () => {
             map.remove()
         }
     }, [setGeoCoord])
     useEffect(() => {
-    }, [mark])
-    
+        if (!map) return
+        const array = Object.keys(nodes)
+            .map(id => {
+                const location = nodes[id].geo_coord
+                const div = document.createElement('div')
+                div.className = "pool_ball"
+                div.innerText = id
+                return new mapboxgl.Marker(div)
+                    .setLngLat(location).addTo(map)
+            })
+        setPoints(prev => {
+            prev.forEach(mark => mark.remove())
+            return array
+        })
+    }, [map, nodes])
+    useEffect(() => {
+    }, [mark, points])
+
     /* ==================== 分隔線 ==================== */
     return <>
         <div id="map" className="map"></div>
