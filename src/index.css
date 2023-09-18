@@ -1,13 +1,78 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+}
+* {
+  box-sizing: border-box;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* ======================================== */
+.dialog {
+  position: fixed; z-index: 10;
+  width: 100%; height: 100%;
+  background-color: #0002;
 }
+.dialog > .template {
+  position: relative; margin: 0 auto;
+  top: 50%; transform: translateY(-50%);
+  height: max-content; width: max-content;
+  min-height: 200px; min-width: 200px;
+  padding: 10px; font-size: large;
+  border-radius: 10px; box-shadow: 0 0 3px 3px #777;
+  background-color: #eee;
+}
+.dialog > .template1 {
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+}
+.button_group {
+  display: flex; margin-top: 5px;
+}
+.button_group > button {
+  height: 30px; flex-grow: 1; cursor: pointer;
+}
+.edge_input {
+  resize: none; outline: none;
+  border-radius: 5px; margin-top: 5px;
+}
+
+/* ======================================== */
+.page {
+  display: flex; gap: 10px;
+  flex-direction: column;
+}
+.add_button {
+  position: fixed; z-index: 5;
+  width: 100px; height: 50px;
+  right: 50px; top: 50vh;
+  font-size: 18px;
+}
+
+/* ======================================== */
+.map {
+  width: 1300px; height: 500px;
+}
+.map_container {
+  position: relative; user-select: none;
+}
+.ntust_map {
+  max-width: 1300px; height: auto;
+  position: absolute; top: 0; left: 0;
+}
+.geo_icon {
+  width: 26px; height: 26px; z-index: 2;
+  position: absolute; color: red;
+}
+
+/* ======================================== */
+.dot_icon {
+  width: 16px; height: 16px; z-index: 1;
+  position: absolute; color: blue; cursor: pointer;
+}
+.dot_icon > div {
+  position: relative; font-weight: bold; color: black;
+}
+.dot_icon > div > span {
+  position: absolute; transform: translate(180%, -180%);
+}
+
+/* ======================================== */
