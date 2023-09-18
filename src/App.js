@@ -1,7 +1,7 @@
 import NtustMap from "./Components/NtustMap"
 import MapBox from "./Components/MapBox"
 import { useEffect, useState } from "react"
-import remote from "./remote"
+import remote from "./function/remote"
 
 /* ======================================== */
 function App() {
@@ -43,6 +43,7 @@ function App() {
     <div className="page">
       <MapBox
         setGeoCoord={setGeoCoord}
+        nodes={nodes}
       />
       <NtustMap
         setImgCoord={setImgCoord}

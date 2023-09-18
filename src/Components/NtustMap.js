@@ -1,4 +1,5 @@
-import remote from "../remote"
+import remote from "../function/remote"
+import canvas from "../function/canvas"
 import React, { useEffect, useRef, useState } from "react"
 import { ReactComponent as DotIcon } from "../assets/dot.svg"
 import { ReactComponent as GeoIcon } from "../assets/geo.svg"
@@ -15,28 +16,6 @@ function htmlSize_To_realSize(canvas, [imageX, imageY]) {
     const originX = (canvas.width / canvas.offsetWidth) * imageX 
     const originY = (canvas.height / canvas.offsetHeight) * imageY
     return [Math.round(originX), Math.round(originY)]
-}
-function drawLine(canvas, [startX, startY], [endX, endY], lineWidth=20, color="blue") {
-    const ctx = canvas.getContext('2d')
-    ctx.beginPath()
-    ctx.moveTo(startX, startY)
-    ctx.lineTo(endX, endY)
-    ctx.lineWidth = lineWidth
-    ctx.strokeStyle = color
-    ctx.stroke()
-    ctx.closePath()
-}
-function drawDot(canvas, [x, y], radius=10, color="blue") {
-    const ctx = canvas.getContext('2d')
-    ctx.beginPath()
-    ctx.arc(x, y, radius, 0, 2*Math.PI)
-    ctx.fillStyle = color
-    ctx.fill()
-    ctx.closePath()
-}
-function clearCanvas(canvas) {
-    const ctx = canvas.getContext('2d')
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
 }
 
 /* ======================================== */
@@ -67,15 +46,15 @@ function NtustMap({ setImgCoord, nodes, setNodes }) {
     useEffect(() => {
         if (!inited) return
         const routeCanvas = routeCanvasRef.current
-        clearCanvas(routeCanvas)
+        canvas.clearCanvas(routeCanvas)
         const ids = Object.keys(nodes)
         ids.forEach(id => {
             const startPoint = nodes[id].img_coord
             const neighbors = Object.keys(nodes[id].edges)
             neighbors.forEach(neighbor => {
                 const endPoint = nodes[neighbor].img_coord
-                drawLine(routeCanvas, startPoint, endPoint, 20)
-                drawDot(routeCanvas, startPoint, 10)
+                canvas.drawLine(routeCanvas, startPoint, endPoint, 20)
+                canvas.drawDot(routeCanvas, startPoint, 10)
             })
         })
     }, [nodes, inited])
@@ -91,7 +70,6 @@ function NtustMap({ setImgCoord, nodes, setNodes }) {
         geoIcon.style.top = clickY - size
         const img_coord = htmlSize_To_realSize(routeCanvasRef.current, [clickX, clickY])
         setImgCoord(img_coord)
-        // console.log(img_coord)
     }
     function nodeClickHandler(id) {
         setShowing(true)
