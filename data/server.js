@@ -83,8 +83,9 @@ function addNeighbors(nodes, node, neighbors) {
     if (!nodes[node]) return nodes
     neighbors.forEach(neighbor => {
         if (nodes[neighbor] && neighbor !== node) {
-            nodes[node].edges[neighbor] = 0
-            nodes[neighbor].edges[node] = 0
+            const distance = haversineDistance(nodes[node].geo_coord, nodes[neighbor].geo_coord)
+            nodes[node].edges[neighbor] = distance
+            nodes[neighbor].edges[node] = distance
         }
     })
     return nodes
