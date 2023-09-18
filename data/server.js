@@ -3,8 +3,9 @@ const express = require("express")
 const app = express()
 app.use(cors())
 app.use(express.json())
-const file = require('path').join(__dirname, "data.json")
 
+/* ======================================== */
+const file = require('path').join(__dirname, "data.json")
 // 讀取nodes
 function getNodes(file) {
     const data = require('fs').readFileSync(file, {encoding:'utf8', flag:'r'})
@@ -15,7 +16,6 @@ function writeNodes(file, nodes) {
     const new_data = JSON.stringify(nodes, null, '\t')
     require('fs').writeFileSync(file, new_data, {encoding:'utf8', flag:'w'})
 }
-
 // 經緯度轉換距離
 function haversineDistance([lon1, lat1], [lon2, lat2]) {
     // 將經緯度轉為弧度
@@ -110,8 +110,29 @@ app.post("/node", (req, res) => {
     const {geoCoord, imgCoord} = req.body
     let nodes = getNodes(file)
     nodes = addNode(nodes, geoCoord, imgCoord)
-    // nodes = writeNodes(file, nodes)
-    // nodes = getNodes(file)
+    nodes = writeNodes(file, nodes)
+    nodes = getNodes(file)
+    res.json(nodes)
+})
+app.del("/node", (req, res) => {
+    const {id} = req.body
+    let nodes = getNodes(file)
+    nodes = deleteNode(nodes, id)
+    nodes = writeNodes(file, nodes)
+    nodes = getNodes(file)
+    res.json(nodes)
+})
+app.put("/node", (req, res) => {
+    const {id, neighbors} = req.body
+    let nodes = getNodes(file)
+    const origin_list = Object.keys(nodes[id].edges)
+    const intersection = origin_list.filter(element => neighbors.includes(element))
+    const deletion = origin_list.filter(element => !intersection.includes(element))
+    const addition = neighbors.filter(element => !intersection.includes(element))
+    nodes = deleteNeighbors(nodes, id, deletion)
+    nodes = addNeighbors(nodes, id, addition)
+    nodes = writeNodes(file, nodes)
+    nodes = getNodes(file)
     res.json(nodes)
 })
 app.listen(50000)

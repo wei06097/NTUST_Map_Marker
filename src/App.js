@@ -13,9 +13,8 @@ function App() {
   useEffect(() => {
     remote.getNodes().then(nodes => setNodes(nodes))
   }, [])
-
   async function addNodeHandler() {
-    const nodes = await remote.addNodes({geoCoord, imgCoord})
+    const nodes = await remote.addNode({geoCoord, imgCoord})
     setNodes(nodes)
     setShowing(false)
   }

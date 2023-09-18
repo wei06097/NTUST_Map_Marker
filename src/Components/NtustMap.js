@@ -1,3 +1,4 @@
+import remote from "../remote"
 import React, { useEffect, useRef, useState } from "react"
 import { ReactComponent as DotIcon } from "../assets/dot.svg"
 import { ReactComponent as GeoIcon } from "../assets/geo.svg"
@@ -25,22 +26,18 @@ function drawLine(canvas, [startX, startY], [endX, endY], lineWidth=20, color="b
     ctx.stroke()
     ctx.closePath()
 }
-/*
-    function drawDot(canvas, [x, y], radius=20, color="blue") {
-        const ctx = canvas.getContext('2d')
-        ctx.beginPath()
-        ctx.arc(x, y, radius, 0, 2*Math.PI)
-        ctx.fillStyle = color
-        ctx.fill()
-        ctx.closePath()
-    }
-*/
-/*
-    function clearCanvas(canvas) {
-        const ctx = canvas.getContext('2d')
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-    }
-*/
+function drawDot(canvas, [x, y], radius=10, color="blue") {
+    const ctx = canvas.getContext('2d')
+    ctx.beginPath()
+    ctx.arc(x, y, radius, 0, 2*Math.PI)
+    ctx.fillStyle = color
+    ctx.fill()
+    ctx.closePath()
+}
+function clearCanvas(canvas) {
+    const ctx = canvas.getContext('2d')
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+}
 
 /* ======================================== */
 function NtustMap({ setImgCoord, nodes, setNodes }) {
@@ -69,14 +66,16 @@ function NtustMap({ setImgCoord, nodes, setNodes }) {
     }, [setNodes])
     useEffect(() => {
         if (!inited) return
+        const routeCanvas = routeCanvasRef.current
+        clearCanvas(routeCanvas)
         const ids = Object.keys(nodes)
         ids.forEach(id => {
-            const routeCanvas = routeCanvasRef.current
             const startPoint = nodes[id].img_coord
             const neighbors = Object.keys(nodes[id].edges)
             neighbors.forEach(neighbor => {
                 const endPoint = nodes[neighbor].img_coord
                 drawLine(routeCanvas, startPoint, endPoint, 20)
+                drawDot(routeCanvas, startPoint, 10)
             })
         })
     }, [nodes, inited])
@@ -100,18 +99,19 @@ function NtustMap({ setImgCoord, nodes, setNodes }) {
         setNodeInfo({id, neighbors})
     }
     async function editNeighborsHandler() {
-        console.log(nodeInfo)
-        // const nodes = await remote.addNodes({geoCoord, imgCoord})
-        // setNodes(nodes)
-        // setShowing(false)
+        const nodes = await remote.editNeighbors({
+            id : nodeInfo.id,
+            neighbors : nodeInfo.neighbors.split(" ").filter(element => element!=="")
+        })
+        setNodes(nodes)
+        setShowing(false)
     }
     async function deleteNodeHandler() {
-        console.log(nodeInfo.id)
-        // const nodes = await remote.addNodes({geoCoord, imgCoord})
-        // setNodes(nodes)
-        // setShowing(false)
+        const nodes = await remote.deleteNode({id: nodeInfo.id})
+        setNodes(nodes)
+        setShowing(false)
     }
-
+    
     /* ======================================== */
     return <>
         {

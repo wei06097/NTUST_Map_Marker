@@ -49,7 +49,7 @@ body {
 
 /* ======================================== */
 .map {
-  width: 1300px; height: 500px;
+  width: 1300px; height: 600px;
 }
 .map_container {
   position: relative; user-select: none;
