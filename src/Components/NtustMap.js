@@ -1,7 +1,6 @@
 import remote from "../function/remote"
 import canvas from "../function/canvas"
 import React, { useEffect, useRef, useState } from "react"
-import { ReactComponent as DotIcon } from "../assets/dot.svg"
 import { ReactComponent as GeoIcon } from "../assets/geo.svg"
 import NTUST_MAP from "../assets/NTUST_MAP.png"
 
@@ -105,10 +104,15 @@ function NtustMap({ setImgCoord, nodes, setNodes }) {
                     <textarea cols="30" rows="5" className="edge_input" 
                         value={nodeInfo.neighbors}
                         onChange={(e) => {
-                            setNodeInfo({
-                                id: nodeInfo.id,
-                                neighbors: e.target.value
-                            })
+                            const value = e.target.value
+                            if (value.includes("\n")) {
+                                editNeighborsHandler()
+                            } else {
+                                setNodeInfo({
+                                    id: nodeInfo.id,
+                                    neighbors: value
+                                })
+                            }
                         }}
                     />
                     <div className="button_group">
@@ -131,7 +135,7 @@ function NtustMap({ setImgCoord, nodes, setNodes }) {
             {
                 Object.keys(nodes)
                     .map(id => {
-                        const size = 20
+                        const size = 18
                         const canvas = mapCanvasRef.current
                         const point = nodes[id].img_coord
                         const [left, top] = realSize_To_htmlSize(canvas, point)
@@ -140,12 +144,7 @@ function NtustMap({ setImgCoord, nodes, setNodes }) {
                             className="dot_icon"
                             style={{left:`${left - size/2}px`, top:`${top - size/2}px`}}
                             onClick={() => {nodeClickHandler(id)}}
-                        >
-                            <DotIcon
-                                style={{width:`${size}px`, height:`${size}px`}}
-                            />
-                            <div><span>{id}</span></div>
-                        </div>
+                        >{id}</div>
                     })
             }
         </div>

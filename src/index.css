@@ -71,8 +71,11 @@ body {
 
 /* ======================================== */
 .dot_icon {
-  width: 16px; height: 16px; z-index: 1;
-  position: absolute; color: blue; cursor: pointer;
+  width: 18px; height: 18px; z-index: 1;
+  position: absolute; cursor: pointer;
+  background-color: black; color: white;
+  text-align: center; font-size: xx-small;
+  border-radius: 50%;
 }
 .dot_icon > div {
   position: relative; font-weight: bold; color: black;
