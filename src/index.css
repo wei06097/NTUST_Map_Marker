@@ -67,6 +67,7 @@ body {
 .ntust_map {
   max-width: 1300px; height: auto;
   position: absolute; top: 0; left: 0;
+  border: 1px solid #ddd; border-radius: 10px;
 }
 
 /* ======================================== */
