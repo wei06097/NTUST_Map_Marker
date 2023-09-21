@@ -5,19 +5,6 @@ import { ReactComponent as GeoIcon } from "../../assets/geo.svg"
 import NTUST_MAP from "../../assets/NTUST_MAP.png"
 
 /* ======================================== */
-function realSize_To_htmlSize(canvas, [originX, originY]) {
-    // const [originWidth, originHeight] = [4292, 2475]
-    const imageX = (canvas.offsetWidth / canvas.width) * originX
-    const imageY = (canvas.offsetHeight / canvas.height) * originY
-    return [Math.round(imageX), Math.round(imageY)]
-}
-function htmlSize_To_realSize(canvas, [imageX, imageY]) {
-    const originX = (canvas.width / canvas.offsetWidth) * imageX 
-    const originY = (canvas.height / canvas.offsetHeight) * imageY
-    return [Math.round(originX), Math.round(originY)]
-}
-
-/* ======================================== */
 function NtustMap({ setImgCoord, nodes, setNodes }) {
     const geoIconRef = useRef()
     const mapCanvasRef = useRef()
@@ -67,7 +54,7 @@ function NtustMap({ setImgCoord, nodes, setNodes }) {
         const size = geoIcon.getBoundingClientRect().height
         geoIcon.style.left = clickX - size / 2
         geoIcon.style.top = clickY - size
-        const img_coord = htmlSize_To_realSize(routeCanvasRef.current, [clickX, clickY])
+        const img_coord = canvas.htmlSize_To_realSize(routeCanvasRef.current, [clickX, clickY])
         setImgCoord(img_coord)
     }
     function nodeClickHandler(id) {
@@ -136,9 +123,9 @@ function NtustMap({ setImgCoord, nodes, setNodes }) {
                 Object.keys(nodes)
                     .map(id => {
                         const size = 18
-                        const canvas = mapCanvasRef.current
+                        const mapCanvas = mapCanvasRef.current
                         const point = nodes[id].img_coord
-                        const [left, top] = realSize_To_htmlSize(canvas, point)
+                        const [left, top] = canvas.realSize_To_htmlSize(mapCanvas, point)
                         return <div
                             key={id}
                             className="dot_icon"
