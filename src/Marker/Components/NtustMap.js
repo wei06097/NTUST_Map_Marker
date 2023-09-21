@@ -1,8 +1,8 @@
-import remote from "../function/remote"
-import canvas from "../function/canvas"
+import remote from "../../function/remote"
+import canvas from "../../function/canvas"
 import React, { useEffect, useRef, useState } from "react"
-import { ReactComponent as GeoIcon } from "../assets/geo.svg"
-import NTUST_MAP from "../assets/NTUST_MAP.png"
+import { ReactComponent as GeoIcon } from "../../assets/geo.svg"
+import NTUST_MAP from "../../assets/NTUST_MAP.png"
 
 /* ======================================== */
 function realSize_To_htmlSize(canvas, [originX, originY]) {

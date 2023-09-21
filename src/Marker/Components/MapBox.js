@@ -27,7 +27,7 @@ export default function MapBox({ setGeoCoord, nodes }) {
             .addControl(new mapboxgl.NavigationControl(), 'top-left')
             .on("click", (e) => {
                 const location = [e.lngLat.lng, e.lngLat.lat]
-                map.flyTo({ center: location, zoom: (map.getZoom() <= 10)? 14: map.getZoom() })
+                // map.flyTo({ center: location, zoom: (map.getZoom() <= 10)? 14: map.getZoom() })
                 setMark(mark => {
                     if (mark) mark.remove()
                     return new mapboxgl.Marker().setLngLat(location).addTo(map)
