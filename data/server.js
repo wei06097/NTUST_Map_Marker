@@ -5,6 +5,83 @@ app.use(cors())
 app.use(express.json())
 
 /* ======================================== */
+function getNearbyNode(nodes, coord) {
+    let min = {id: null, distance: Infinity}
+    Object.keys(nodes)
+        .map(id => {
+            const pointA = nodes[id].img_coord
+            const pointB = coord
+            const [x, y] = [pointA[0] - pointB[0], pointA[1] - pointB[1]]
+            return [id, x*x + y*y]
+        })
+        .forEach(([id, distance]) => {
+            if (distance < min.distance) min = {id, distance}
+        })
+    return min.id
+}
+function dijkstra(nodes, source, destination) {
+    if (source === destination) return []
+    const ids = Object.keys(nodes)
+    ids.forEach(id => {
+        nodes[id] = {
+            ...nodes[id],
+            lock: false,
+            loss: Infinity,
+            lastNode: null
+        }
+    })
+    // 1. 鎖住損耗最低的格子(起點)
+    let lastLocked = source
+    nodes[lastLocked] = {
+        ...nodes[lastLocked],
+        lock: true,
+        loss: 0,
+        lastNode: null
+    }
+    while (true) {
+        // 2. 找出與上鎖格相鄰且未上鎖的格子
+        const neighbors = Object.keys(nodes[lastLocked].edges).filter(id => !nodes[id].lock)
+        neighbors.forEach(neighbor => {
+            // 3. 計算相鄰格的損耗
+            const oldLoss = nodes[neighbor].loss
+            const newLoss = nodes[lastLocked].loss + nodes[lastLocked].edges[neighbor]
+            if (newLoss < oldLoss) {
+                nodes[neighbor] = {
+                    ...nodes[neighbor],
+                    loss: newLoss,
+                    lastNode: lastLocked
+                }
+            }
+        })
+        // 1. 鎖住損耗最低的格子
+        let min = Infinity
+        const unlockedList = ids.filter(id => nodes[id].lastNode && !nodes[id].lock)
+        unlockedList.forEach(unlocked => {
+            const loss = nodes[unlocked].loss
+            if (loss < min) {
+                min = loss
+                lastLocked = unlocked
+            }
+        })
+        nodes[lastLocked] = {
+            ...nodes[lastLocked],
+            lock: true,
+        }
+        // 終點鎖住 => 結束
+        if (lastLocked === destination) break
+    }
+    // 從終點往回找
+    const array = []
+    let element = destination
+    while (true) {
+        array.unshift(element)
+        if (!nodes[element].lastNode) break
+        element = nodes[element].lastNode
+    }
+    return array
+}
+
+/* ======================================== */
 const file = require('path').join(__dirname, "data.json")
 // 讀取nodes
 function getNodes(file) {
@@ -135,5 +212,13 @@ app.put("/node", (req, res) => {
     nodes = writeNodes(file, nodes)
     nodes = getNodes(file)
     res.json(nodes)
+})
+app.post("/pathfinding", (req, res) => {
+    const {source, destination} = req.body
+    const nodes = getNodes(file)
+    const pointA = getNearbyNode(nodes, source)
+    const pointB = getNearbyNode(nodes, destination)
+    const path = dijkstra(nodes, pointA, pointB)
+    res.json(path)
 })
 app.listen(50000)

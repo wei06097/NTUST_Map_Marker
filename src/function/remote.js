@@ -31,6 +31,15 @@ const remote = {
         })
         const nodes = await response.json()
         return Promise.resolve(nodes)
+    },
+    findPath : async (payload) => {
+        const response = await fetch(`${BASE_URL}/pathfinding`, {
+            method : "POST",
+            headers: { "Content-Type": "application/json" },
+            body : JSON.stringify(payload)
+        })
+        const path = await response.json()
+        return Promise.resolve(path)
     }
 }
 
