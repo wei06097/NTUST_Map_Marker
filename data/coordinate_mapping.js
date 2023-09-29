@@ -1,99 +1,77 @@
 /* ==================== */
-const a = { //宿舍1
-    geo : [121.54275944463592, 25.01289731624324],
-    img : [2817, 610]
+const POINT = {
+    A : { //行政大樓
+        geo : [121.54109305805667, 25.013265414844838],
+        img : [4120, 2645]
+    },
+    B : { //國際大樓
+        geo : [121.54018903041901, 25.013030855815018],
+        img : [5291, 3257]
+    }
 }
-const b = { //國際大樓
-    geo : [121.54018239926825, 25.013034932553623],
-    img : [5291, 3259]
+const PARAMETER = {
+    THETA : -136.5 * (Math.PI / 180),
+    BASE : [121.54441046735, 25.01390096878],
+    C12 : [6.897990354192532e-7, 6.927730843184932e-7],
+    C34 : [1448740.1933143984, 1451271.8357635792]
 }
 
 /* ==================== */
-const theta = 136.5 * (Math.PI / 180)
-function getParams([a, b], [x, y], [lon, lat]) {
-    const c1 = (lon - a) / (Math.cos(theta) * x + Math.sin(theta) * y)
-    const c2 = (lat - b) / (Math.sin(theta) * x - Math.cos(theta) * y)
+function findC12(THETA, BASE, [x, y], [lon, lat]) {
+    const c1 = (lon - BASE[0]) / (Math.cos(THETA) * x + Math.sin(THETA) * y)
+    const c2 = (lat - BASE[1]) / (Math.sin(THETA) * x - Math.cos(THETA) * y)
     return [c1, c2]
 }
-function getGeo([a, b], [c1, c2], [x, y]) {
-    const lon = c1 * (Math.cos(theta) * x + Math.sin(theta) * y) + a
-    const lat = c2 * (Math.sin(theta) * x - Math.cos(theta) * y) + b
+function getGeoCoord(C12, THETA, BASE, [x, y]) {
+    const lon = C12[0] * (Math.cos(THETA) * x + Math.sin(THETA) * y) + BASE[0]
+    const lat = C12[1] * (Math.sin(THETA) * x - Math.cos(THETA) * y) + BASE[1]
     return [lon, lat]
 }
-function getParams2([a, b], [x, y], [lon, lat]) {
-    // const newAB = mercatorProjection([a, b])
-    // const newLonLat = mercatorProjection([lon, lat])
-    // a = newAB[0]
-    // b = newAB[1]
-    // lon = newLonLat[0]
-    // lat = newLonLat[1]
-    lon = lon - a
-    lat = lat - b
-    const c3 = x / (Math.cos(theta) * lon + Math.sin(theta) * lat)
-    const c4 = (-1 * y) / (-1 * Math.sin(theta) * lon + Math.cos(theta) * lat)
+function findC34(THETA, BASE, [x, y], [lon, lat]) {
+    lon -= BASE[0]
+    lat -= BASE[1]
+    const c3 = x / (Math.cos(THETA) * lon + Math.sin(THETA) * lat)
+    const c4 = y / (Math.sin(THETA) * lon - Math.cos(THETA) * lat)
     return [c3, c4]
 }
-function getImg([a, b], [c3, c4], [lon, lat]) {
-    // const newAB = mercatorProjection([a, b])
-    // const newLonLat = mercatorProjection([lon, lat])
-    // a = newAB[0]
-    // b = newAB[1]
-    // lon = newLonLat[0]
-    // lat = newLonLat[1]
-    lon = lon -a
-    lat = lat - b
-    const x = c3 * (Math.cos(theta) * lon + Math.sin(theta) * lat)
-    const y = -1 * c4 * (-1 * Math.sin(theta) * lon + Math.cos(theta) * lat)
+function getImgCoord(C34, THETA, BASE, [lon, lat]) {
+    lon -= BASE[0]
+    lat -= BASE[1]
+    const x = C34[0] * (Math.cos(THETA) * lon + Math.sin(THETA) * lat)
+    const y = C34[1] * (Math.sin(THETA) * lon - Math.cos(THETA) * lat)
     return [Math.round(x), Math.round(y)]
 }
 
 /* ==================== */
-function mercatorProjection([lon, lat]) {
-    const R = 6371
-    const lonRad = lon * (Math.PI / 180)
-    const latRad = lat * (Math.PI / 180)
-    const x = R * lonRad
-    const y = R * Math.log(Math.tan(Math.PI / 4 + latRad / 2))
-    return [x, y]
-}
 function findBestBase() {
-    const step = 0.0000001 // 0.00000000000001
-    const start = [121.54441046738958, 25.01392271055478] //右下
-    const end =   [121.54462512615004, 25.01390096880897] //左上
+    const step = 0.00000000000001 // 0.00000000000001
+    const start = [121.54441046735000, 25.01390096885000] //右下 [121.54441046738958, 25.01392271055478]
+    const end =   [121.54441046740000, 25.01390096878000] //左上 [121.54462512615004, 25.01390096880897]
     let min = {i: null, j: null, dlon2: Infinity, dlat2: Infinity}
     for (let i=start[0]; i<=end[0]; i+=step) {
         for (let j=end[1]; j<=start[1]; j+=step) {
-            const base = [i, j]
-            const [c1, c2] = getParams(base, a.img, a.geo)
-            const [lon, lat] = getGeo(base, [c1, c2], b.img)
-            const [dlon, dlat] = [b.geo[0]-lon, b.geo[1]-lat]
-            const [dlon2, dlat2] = [dlon**2, dlat**2]
+            const BASE = [i, j]
+            const {THETA} = PARAMETER
+            const C12 = findC12(THETA, BASE, POINT.A.img, POINT.A.geo)
+            const [lon, lat] = getGeoCoord(C12, THETA, BASE, POINT.B.img)
+            const [dlon2, dlat2] = [(POINT.B.geo[0]-lon)**2, (POINT.B.geo[1]-lat)**2]
             if (dlon2 < min.dlon2 && dlat2 < min.dlat2) {
                 min = {i, j, dlon2, dlat2}
             }
-            console.log(i, j)
         }
-        console.clear()
+        console.log(i)
     }
+    console.clear()
     console.log(min)
 }
 // findBestBase()
 
 /* ==================== */
-const base =  [121.54441046738958, 25.01390096880897]
 function test1() {
-    const test_data = a
-    const params = getParams(base, test_data.img, test_data.geo)
-    const [lon, lat] = getGeo(base, params, test_data.img)
+    const {C12, C34, THETA, BASE} = PARAMETER
+    const [lon, lat] = getGeoCoord(C12, THETA, BASE, [1047, 1117])
+    const [x, y] = getImgCoord(C34, THETA, BASE, [lon, lat])
     console.log(lat, lon)
-    console.log(lat-test_data.geo[1], lon-test_data.geo[0])
-}
-function test2() {
-    const test_data = a
-    const params2 = getParams2(base, test_data.img, test_data.geo)
-    const [x, y] = getImg(base, params2, test_data.geo)
     console.log(x, y)
-    console.log(x-test_data.img[0], y-test_data.img[1])
 }
-// test1()
-// test2()
+test1()
